@@ -85,7 +85,12 @@ import numpy as np
 import os
 %matplotlib inline
 ## make sure you set the DATA path to be to the folder where you downloaded the data at the beginning of class
-DATA = "/Users/ehuntley/Desktop/week-05/landsat"
+a = 'C:' # removed slash
+b = 'Users' # removed slash
+c = 'Yanisa'
+d = 'github'
+e = 'ws04_materials'
+DATA = os.path.join(a + os.sep, b, c, d, e)
 ```
 
 ## Calculating a Normalized Difference Vegetation Index
@@ -199,7 +204,7 @@ We now need to read in some correction values stored in the Landsat metadata in 
 
 ```python
 # make this path the local path to your MTL.txt file that you downloaded at the start of the workshop
-meta_file = '/Users/ehuntley/Desktop/week-05/landsat/MTL.txt'
+meta_file = os.path.join(DATA, "MTL.txt")
 
 with open(meta_file) as f:
     meta = f.readlines()
@@ -387,7 +392,7 @@ driver = gdal.GetDriverByName('GTiff')
 # so we can use the tirs_data size properties
 # Note that tirs_data = gdal.Open(b10_raster)
 # This is not the numpy array!
-new_dataset = driver.Create('/Users/ehuntley/Desktop/week-05/landsat/lst.tif',
+new_dataset = driver.Create(os.path.join(DATA,"classexample.tif"),
                     tirs_data.RasterXSize,
                     tirs_data.RasterYSize,
                     1,
