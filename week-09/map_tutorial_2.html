@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Mapping with D3</title>
+	<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+	<script src="https://d3js.org/d3-queue.v2.min.js"></script>
+</head>
+<body>
+	<!-- Page elements and content go here. -->
+	<script>
+    var width = 720,
+      height = 500;
+
+    var projection = d3.geoAlbers()
+        .scale(1000)
+        .translate([width / 2, height / 2]);
+
+    var path = d3.geoPath()
+        .projection(projection);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Mapping with D3</title>
+  	<script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://d3js.org/d3-queue.v2.min.js"></script>
+  </head>
+  <body>
+  	<!-- Page elements and content go here. -->
+  	<script>
+      var width = 720,
+      height = 700;
+
+      var albersProjection = d3.geoAlbers()
+        .scale(190000)
+        .rotate([71.057,0])
+        .center([0, 42.313])
+        .translate([width/2, height/2]);
+
+      var path = d3.geoPath()
+        .projection(albersProjection);
+
+      var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+  		var color = d3.scaleThreshold()
+  				.domain([0, 0.1, 0.2, 0.3, 0.4])
+  				.range(d3.schemeBlues[5]);
+
+      var tooltip = d3.select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("font-family", "'Open Sans', sans-serif")
+          .style("font-size", "12px")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("background-color", "white")
+          .style("padding", "5px")
+          .style("opacity", "0.7");
+
+      d3.queue()
+        .defer(d3.json, "data/boston_neigh.json")
+        .defer(d3.csv, "data/boston_311_totals.csv")
+        .await(ready);
+
+      function ready(error, neigh, calls) {
+        if (error) throw error;
+
+        var calls_pct = {}; // Create empty object for holding dataset
+        calls.forEach(function(d) {
+          calls_pct[d.Name] = +((d.twit_count / d.tot_count) * 100); // Create property for each ID, give it value from rate
+        });
+
+        svg.append("g")
+          .attr("class", "neighborhoods")
+          .selectAll("path")
+          .data(topojson.feature(neigh, neigh.objects.boston_neigh).features) // Bind TopoJSON data elements
+          .enter().append("path")
+          .attr("d", path)
+          .style("fill", function(d) {
+    				return color(calls_pct[d.properties.Name]);
+    			})
+          .style("stroke", "white")
+          .on("mouseover", function(d){
+            return tooltip.style("visibility", "visible").text(d.properties.Name + ": " + calls_pct[d.properties.Name].toFixed(2)+"%");
+          })
+          .on("mousemove", function(d){
+            return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px").text(d.properties.Name + ": " + calls_pct[d.properties.Name].toFixed(2)+"%");
+          })
+          .on("mouseout", function(d){
+            return tooltip.style("visibility", "hidden");
+          })
+          ;
+        }
+  	</script>
+  </body>
+</html>
